@@ -1,12 +1,16 @@
 import json
 import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 URL_main = "https://quotes.toscrape.com"
+ua = UserAgent(browsers=["chrome", "opera", "firefox"])
 
 
 def get_html_soup(url: str):
-    response = requests.get(url)
+    headers = {"User-Agent": ua.random}
+
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return BeautifulSoup(response.content, "lxml")
     else:
@@ -49,14 +53,16 @@ def main():
     quotes_data = []
 
     while not stop_parser:
-        print(f"Page {page_num} in processing...")
         soup = get_html_soup(URL_main + f"/page/{page_num}")
 
         # if there are no more quotes on the page we will see "No quotes found!", it means we should stop the scraper
         signal_element = soup.select("div.col-md-8")[1].text.split("←")
         if signal_element[0].strip() == "No quotes found!":
             stop_parser = True
+            continue
 
+        print(f"Page {page_num} in processing...")
+        # --------------=== Handle soup ===------------------------------------
         cards = soup.find_all("div", class_="quote")  # all cards on the page
         for card in cards:
             quotes_data.append(get_quote_info(card))  # extract info about quote and add it to the quotes_data list
@@ -64,7 +70,7 @@ def main():
             # extract info about author and add it to the authors_data list
             author_page = card.find_next("a").get("href")
             authors_data.append(get_full_author_info(URL_main + author_page))
-
+        # -----------------------------------------------------------------------
         page_num += 1
 
     # creating json files, open them for writing and save info
