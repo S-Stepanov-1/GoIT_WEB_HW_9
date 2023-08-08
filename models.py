@@ -6,6 +6,7 @@ class Authors(Document):
     born_date = StringField(max_length=30)
     born_location = StringField(max_length=100)
     description = StringField(required=True)
+    photo_url = StringField()
 
 
 class Quotes(Document):

@@ -14,17 +14,12 @@ def get_data(file_path: str) -> list[dict]:
 def fill_authors(authors: list[dict]) -> None:
 
     for author in authors:
-
-        is_existing_author = Authors.objects(fullname=author["fullname"])
-        if is_existing_author:
-            continue
-
-        else:
-            new_author = Authors(fullname=author["fullname"],
-                                 born_date=author["born_date"],
-                                 born_location=author["born_location"],
-                                 description=author["description"])
-            new_author.save(validate=False)
+        new_record = Authors(fullname=author["fullname"],
+                             born_date=author["born_date"],
+                             born_location=author["born_location"],
+                             description=author["description"],
+                             photo_url=author["photo"])
+        new_record.save(validate=False)
 
 
 def fill_quotes(quotes: list[dict]) -> None:
@@ -37,11 +32,8 @@ def fill_quotes(quotes: list[dict]) -> None:
                                quote=quote["quote"])
             new_quote.save(validate=False)
 
-        except Exception :
-            new_quote = Quotes(tags=quote["tags"],
-                               author=quote["author"],
-                               quote=quote["quote"])
-            new_quote.save(validate=False)
+        except Exception:
+            continue
 
 
 if __name__ == '__main__':
